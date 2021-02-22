@@ -1,0 +1,21 @@
+.Header {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+
+  .image {
+    width: 512px;
+  }
+
+ .Header__text {
+    h1 {
+      font-size: 5em;
+    }
+
+   h3 {
+      font-size: 2em;
+   }
+ }
+}

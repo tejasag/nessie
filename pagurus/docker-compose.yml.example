@@ -5,8 +5,8 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=nessie
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=nessie-pagurus
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test
     volumes:
       - ./db/:/var/lib/postgresql/data/

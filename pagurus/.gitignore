@@ -2,3 +2,5 @@
 .idea/
 .env
 db/
+docker-compose.yml
+Rocket.toml

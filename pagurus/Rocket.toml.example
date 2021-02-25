@@ -1,0 +1,2 @@
+[global.databases]
+PostgresDB = { url = "postgres://test:test@localhost/test" }

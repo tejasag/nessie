@@ -1,0 +1,12 @@
+version: "3"
+services:
+  database:
+    image: "postgres:latest"
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=nessie
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=nessie-pagurus
+    volumes:
+      - ./db/:/var/lib/postgresql/data/

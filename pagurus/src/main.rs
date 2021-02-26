@@ -24,6 +24,26 @@ fn create(input: Json<RequestUserBody>, db_conn: PostgresDB) -> Json<User> {
     ))
 }
 
+#[derive(Serialize, Deserialize)]
+struct EditUserData<'a> {
+    username: &'a str,
+    new_username: &'a str,
+    display_name: &'a str,
+    email: &'a str,
+    password: &'a str,
+}
+
+#[post("/edit-user", format = "json", data = "<input>")]
+fn edit(input: Json<EditUserData>, db_conn: PostgresDB) -> Json<User> {
+    let data = RequestUserBody {
+        username: input.username,
+        display_name: input.display_name,
+        email: input.email,
+        password: input.password,
+    };
+    Json(InsertableUser::update(input.new_username, data, &db_conn.0))
+}
+
 #[get("/")]
 fn index(_db_conn: PostgresDB) -> &'static str {
     "Welcome to pagurus!"
@@ -68,25 +88,27 @@ pub struct RequestUserBody<'a> {
     pub password: &'a str,
 }
 
+fn current_time() -> NaiveDateTime {
+    use chrono::{DateTime, Utc};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    let start = SystemTime::now();
+    let since_the_epoch = start
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
+    let rightnow = NaiveDateTime::from_timestamp(since_the_epoch.as_secs() as i64, 0);
+    rightnow
+}
+
 impl<'a> InsertableUser<'a> {
     fn new(
         username: &'a str,
         display_name: &'a str,
         email: &'a str,
         password: &'a str,
-        //   created_at: chrono::NaiveDateTime,
-        //  last_updated: Option<chrono::NaiveDateTime>,
         conn: &PgConnection,
     ) -> User {
-        use chrono::{DateTime, Utc};
-        use std::time::{SystemTime, UNIX_EPOCH};
-
-        let start = SystemTime::now();
-        let since_the_epoch = start
-            .duration_since(UNIX_EPOCH)
-            .expect("Time went backwards");
-        let rightnow = NaiveDateTime::from_timestamp(since_the_epoch.as_secs() as i64, 0);
-
+        let rightnow = current_time();
         let user = Self {
             username,
             display_name,
@@ -100,6 +122,31 @@ impl<'a> InsertableUser<'a> {
             .values(&user)
             .get_result(conn)
             .expect("Could not make a user")
+    }
+
+    fn update(
+        username_input: &'a str,
+        data_to_update: RequestUserBody,
+        conn: &PgConnection,
+    ) -> User {
+        use schema::users::dsl::*;
+        use schema::users::*;
+        let rightnow = current_time();
+        let results = users
+            .filter(username.like(username_input))
+            .load::<User>(&conn)
+            .expect("Error loading previous data");
+
+        diesel::update(users.filter(username.like(results[0].username)))
+            .set((
+                username.eq(data_to_update.username),
+                display_name.eq(data_to_update.display_name),
+                email.eq(data_to_update.email),
+                password.eq(data_to_update.password),
+                last_updated.eq(rightnow),
+            ))
+            .get_result::<User>(&conn)
+            .except("Could not update the data")
     }
 }
 
@@ -157,6 +204,36 @@ mod test {
         assert_eq!(user.username, String::from("tejasagarwal"));
         assert_eq!(user.display_name, String::from("Tejas Agarwal"));
         assert_eq!(user.email, String::from("tejas@agarw.al"));
+        assert_eq!(user.password, String::from("secretPassword"));
+    }
+    #[test]
+    fn test_user_edit() {
+        let rocket = rocket::ignite()
+            .attach(PostgresDB::fairing())
+            .register(catchers![unavailable])
+            .mount("/", routes![index, create, edit]);
+        let client = Client::new(rocket).expect("invalid rocket instance");
+        let mut response = client
+            .post("/create-edit")
+            .header(ContentType::JSON)
+            .body(
+                r##"{
+                "username": "tejasagarwal",
+                "data": {
+                    "username": "tejasagarwal",
+                    "display_name": "Tejas Agarwal",
+                    "email": "me@tejasagarwal.tech",
+                    "password": "secretPassword"
+                }
+            }"##,
+            )
+            .dispatch();
+        let response_body = response.body_string().expect("Response body");
+        let user: User =
+            serde_json::from_str(&response_body.as_str()).expect("Valid user response.");
+        assert_eq!(user.username, String::from("tejasagarwal"));
+        assert_eq!(user.display_name, String::from("Tejas Agarwal"));
+        assert_eq!(user.email, String::from("me@tejasagarwal.tech"));
         assert_eq!(user.password, String::from("secretPassword"));
     }
 }

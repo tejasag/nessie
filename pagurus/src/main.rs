@@ -132,12 +132,7 @@ impl<'a> InsertableUser<'a> {
         use schema::users::dsl::*;
         use schema::users::*;
         let rightnow = current_time();
-        let results = users
-            .filter(username.like(username_input))
-            .load::<User>(&conn)
-            .expect("Error loading previous data");
-
-        diesel::update(users.filter(username.like(results[0].username)))
+        diesel::update(users.filter(username.like(username_input)))
             .set((
                 username.eq(data_to_update.username),
                 display_name.eq(data_to_update.display_name),
@@ -145,8 +140,8 @@ impl<'a> InsertableUser<'a> {
                 password.eq(data_to_update.password),
                 last_updated.eq(rightnow),
             ))
-            .get_result::<User>(&conn)
-            .except("Could not update the data")
+            .get_result::<User>(conn)
+            .expect("Could not update the data")
     }
 }
 
@@ -214,23 +209,21 @@ mod test {
             .mount("/", routes![index, create, edit]);
         let client = Client::new(rocket).expect("invalid rocket instance");
         let mut response = client
-            .post("/create-edit")
+            .post("/edit-user")
             .header(ContentType::JSON)
             .body(
                 r##"{
                 "username": "tejasagarwal",
-                "data": {
-                    "username": "tejasagarwal",
+                    "new_username": "tejasagarwal",
                     "display_name": "Tejas Agarwal",
                     "email": "me@tejasagarwal.tech",
                     "password": "secretPassword"
-                }
             }"##,
             )
             .dispatch();
         let response_body = response.body_string().expect("Response body");
         let user: User =
-            serde_json::from_str(&response_body.as_str()).expect("Valid user response.");
+            serde_json::from_str(&response_body.as_str()).expect("Invalid user response.");
         assert_eq!(user.username, String::from("tejasagarwal"));
         assert_eq!(user.display_name, String::from("Tejas Agarwal"));
         assert_eq!(user.email, String::from("me@tejasagarwal.tech"));

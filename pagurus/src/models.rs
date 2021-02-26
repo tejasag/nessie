@@ -1,4 +1,9 @@
 use crate::*;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use rocket_contrib::databases::diesel::PgConnection;
+use schema::users;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Associations, PartialEq, Debug, Serialize, Deserialize)]
 #[table_name = "users"]
@@ -11,9 +16,6 @@ pub struct User {
     pub created_at: chrono::NaiveDateTime,
     pub last_updated: Option<chrono::NaiveDateTime>,
 }
-
-use chrono::NaiveDateTime;
-use schema::users;
 
 #[derive(Insertable, Serialize, Deserialize)]
 #[table_name = "users"]

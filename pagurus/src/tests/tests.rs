@@ -4,10 +4,7 @@ use rocket::local::Client;
 
 #[test]
 fn test_index() {
-    let rocket = rocket::ignite()
-        .attach(PostgresDB::fairing())
-        .register(catchers![unavailable])
-        .mount("/", routes![index, create]);
+    let rocket = endpoints::fuel(rocket::ignite());
     let client = Client::new(rocket).expect("invalid rocket instance");
     let mut response = client.get("/").dispatch();
     assert_eq!(response.body_string(), Some("Welcome to pagurus!".into()))
@@ -15,10 +12,7 @@ fn test_index() {
 
 #[test]
 fn test_user_create() {
-    let rocket = rocket::ignite()
-        .attach(PostgresDB::fairing())
-        .register(catchers![unavailable])
-        .mount("/", routes![index, create]);
+    let rocket = endpoints::fuel(rocket::ignite());
     let client = Client::new(rocket).expect("invalid rocket instance");
     let mut response = client
         .post("/create-user")
@@ -42,10 +36,7 @@ fn test_user_create() {
 
 #[test]
 fn test_user_edit() {
-    let rocket = rocket::ignite()
-        .attach(PostgresDB::fairing())
-        .register(catchers![unavailable])
-        .mount("/", routes![index, create, edit]);
+    let rocket = endpoints::fuel(rocket::ignite());
     let client = Client::new(rocket).expect("invalid rocket instance");
     let mut response = client
         .post("/edit-user")

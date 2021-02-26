@@ -36,12 +36,12 @@ struct EditUserData<'a> {
 #[post("/edit-user", format = "json", data = "<input>")]
 fn edit(input: Json<EditUserData>, db_conn: PostgresDB) -> Json<User> {
     let data = RequestUserBody {
-        username: input.username,
+        username: input.new_username,
         display_name: input.display_name,
         email: input.email,
         password: input.password,
     };
-    Json(InsertableUser::update(input.new_username, data, &db_conn.0))
+    Json(InsertableUser::update(input.username, data, &db_conn.0))
 }
 
 #[get("/")]

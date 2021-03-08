@@ -6,14 +6,14 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate diesel;
 
-mod endpoints;
 mod models;
+mod routes;
 mod schema;
 
 use models::*;
 
 fn main() {
-    endpoints::fuel(rocket::ignite()).launch();
+    routes::fuel(rocket::ignite()).launch();
 }
 
 #[cfg(test)]

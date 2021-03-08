@@ -1,5 +1,6 @@
 table! {
-    users (username) {
+    users (id) {
+        id -> Uuid,
         username -> Varchar,
         display_name -> Varchar,
         email -> Varchar,

@@ -1,6 +1,7 @@
+// @ts-ignore
 import styles from "../styles/Navbar.module.scss";
 
-export const Navbar = () => {
+export default function Navbar() {
     return (
         <div className={styles.navbar}>
             <header className={styles.header}>

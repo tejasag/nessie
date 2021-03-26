@@ -1,11 +1,11 @@
 table! {
     users (id) {
-        id -> Uuid,
+        id -> Int4,
         username -> Varchar,
         display_name -> Varchar,
         email -> Varchar,
         password -> Varchar,
-        created_at -> Timestamp,
-        last_updated -> Nullable<Timestamp>,
+        created_at -> Varchar,
+        last_updated -> Nullable<Varchar>,
     }
 }

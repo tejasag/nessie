@@ -1,3 +1,4 @@
+use crate::models::user::User;
 use crate::*;
 use rocket::http::ContentType;
 use rocket::local::Client;
@@ -23,6 +24,7 @@ fn test_user_create() {
                 "display_name": "Tejas Agarwal",
                 "email": "tejas@agarw.al",
                 "password": "secretPassword"
+                "created_at": "0"
             }"##,
         )
         .dispatch();
@@ -43,11 +45,11 @@ fn test_user_edit() {
         .header(ContentType::JSON)
         .body(
             r##"{
-            
                 "username": "tejasagarwal",
                     "display_name": "Tejas Agarwal",
                     "email": "me@tejasagarwal.tech",
                     "password": "secretPassword"
+                    "created_at": "0"
             }"##,
         )
         .dispatch();

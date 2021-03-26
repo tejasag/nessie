@@ -8,9 +8,10 @@ extern crate diesel;
 
 mod models;
 mod routes;
-mod schema;
 
-use models::*;
+mod schema;
+use routes::*;
+use schema::*;
 
 fn main() {
     routes::fuel(rocket::ignite()).launch();

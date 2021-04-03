@@ -27,3 +27,13 @@ pub fn user_create(input: Json<UserCreateJson>, conn: Database) -> Json<User> {
         &conn.0,
     ))
 }
+
+#[derive(Serialize, Deserialize)]
+struct UserDeleteJson {
+    user_id: String,
+}
+
+#[post("/user/delete", format = "json", data = "<input>")]
+pub fn user_delete(input: Json<UserDeleteJson>, conn: Database) -> Json<usize> {
+    Json(User::delete(&input.user_id, &conn.0))
+}

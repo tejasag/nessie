@@ -34,8 +34,6 @@ impl User {
         created_at: &'a str,
         conn: &PgConnection,
     ) -> User {
-        use crate::schema::users;
-
         let u = InsertableUser {
             username,
             display_name,
@@ -67,8 +65,6 @@ impl User {
         current_time: &'a str,
         conn: &PgConnection,
     ) -> User {
-        use crate::schema::users;
-
         diesel::update(users::table.filter(users::id.eq(user_id.parse::<i32>().unwrap())))
             .set((
                 users::username.eq(username),

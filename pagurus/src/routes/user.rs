@@ -1,6 +1,5 @@
 use crate::models::user::User;
 use crate::Database;
-use rocket::Rocket;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
@@ -29,7 +28,7 @@ pub fn user_create(input: Json<UserCreateJson>, conn: Database) -> Json<User> {
 }
 
 #[derive(Serialize, Deserialize)]
-struct UserDeleteJson {
+pub struct UserDeleteJson {
     user_id: String,
 }
 

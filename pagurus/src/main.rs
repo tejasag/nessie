@@ -11,7 +11,6 @@ mod routes;
 
 mod schema;
 use routes::*;
-use schema::*;
 
 fn main() {
     routes::fuel(rocket::ignite()).launch();
